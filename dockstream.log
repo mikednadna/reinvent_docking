@@ -1,0 +1,21 @@
+2026-02-18 22:53:26 - DockStream version used: 1.0.0
+2026-02-18 22:53:26 - Could not load CCDC / Gold docker - if another backend is being used, you can safely ignore this warning. The exception message reads: No module named 'ccdc'
+2026-02-18 22:53:26 - Starting generation of pool reinvent_pool.
+2026-02-18 22:53:26 - Failed in constructing pool reinvent_pool.
+Traceback (most recent call last):
+  File "/home/michael-kaiser/DockStream/docker.py", line 127, in <module>
+    ligand_number_start=0)
+  File "/home/michael-kaiser/DockStream/dockstream/utils/entry_point_functions/embedding.py", line 38, in embed_ligands
+    prep = CorinaLigandPreparator(ligands=list_ligands, pool_number=pool_number, **pool)
+  File "/home/michael-kaiser/DockStream/dockstream/core/Corina/Corina_ligand_preparator.py", line 59, in __init__
+    raise LigandPreparationFailed("Cannot initialize Corina backend - abort.")
+dockstream.utils.dockstream_exceptions.LigandPreparationFailed: Cannot initialize Corina backend - abort.
+2026-02-18 22:53:26 - Exception reads: Cannot initialize Corina backend - abort..
+Traceback (most recent call last):
+  File "/home/michael-kaiser/DockStream/docker.py", line 127, in <module>
+    ligand_number_start=0)
+  File "/home/michael-kaiser/DockStream/dockstream/utils/entry_point_functions/embedding.py", line 38, in embed_ligands
+    prep = CorinaLigandPreparator(ligands=list_ligands, pool_number=pool_number, **pool)
+  File "/home/michael-kaiser/DockStream/dockstream/core/Corina/Corina_ligand_preparator.py", line 59, in __init__
+    raise LigandPreparationFailed("Cannot initialize Corina backend - abort.")
+dockstream.utils.dockstream_exceptions.LigandPreparationFailed: Cannot initialize Corina backend - abort.

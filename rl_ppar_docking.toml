@@ -1,0 +1,88 @@
+run_type = "staged_learning"
+
+[parameters]
+batch_size = 20
+prior_file = "/home/michael-kaiser/reinvent_docking/reinvent.prior"
+agent_file = "/home/michael-kaiser/reinvent_docking/reinvent.prior"
+use_checkpoint = false
+
+[learning_strategy]
+type = "dap"
+sigma = 128
+rate = 0.0001
+
+[diversity_filter]
+type = "IdenticalMurckoScaffold"
+minscore = 0.4
+bucket_size = 25
+
+[[stage]]
+max_score = 1.0
+max_steps = 5
+chkpt_file = "results/stage1.chkpt"
+termination = "simple"
+
+[stage.scoring]
+type = "geometric_mean"
+
+[[stage.scoring.component]]
+[stage.scoring.component.DockStream]
+name = "PPARa_affinity"
+weight = 1.0
+[[stage.scoring.component.DockStream.endpoint]]
+name = "PPARa Vina"
+weight = 1.0
+params.configuration_path = "dockstream_config.json"
+params.docker_script_path = "/home/michael-kaiser/DockStream/docker.py"
+params.docker_python_path = "/home/michael-kaiser/anaconda3/envs/DockStream/bin/python"
+params.docking_run_name = "PPARa"
+transform.type = "reverse_sigmoid"
+transform.high = -10.0
+transform.low  = -5.0
+transform.k    = 0.5
+
+[[stage.scoring.component]]
+[stage.scoring.component.DockStream]
+name = "PPARg_penalty"
+weight = 1.0
+[[stage.scoring.component.DockStream.endpoint]]
+name = "PPARg Vina"
+weight = 1.0
+params.configuration_path = "dockstream_config.json"
+params.docker_script_path = "/home/michael-kaiser/DockStream/docker.py"
+params.docker_python_path = "/home/michael-kaiser/anaconda3/envs/DockStream/bin/python"
+params.docking_run_name = "PPARg"
+transform.type = "sigmoid"
+transform.high = -5.0
+transform.low  = -10.0
+transform.k    = 0.5
+
+[[stage.scoring.component]]
+[stage.scoring.component.QED]
+[[stage.scoring.component.QED.endpoint]]
+name = "QED"
+weight = 0.5
+
+[[stage.scoring.component]]
+[stage.scoring.component.MolecularWeight]
+[[stage.scoring.component.MolecularWeight.endpoint]]
+name = "MolecularWeight"
+weight = 0.5
+[stage.scoring.component.MolecularWeight.endpoint.transform]
+type     = "double_sigmoid"
+high     = 500.0
+low      = 200.0
+coef_div = 500.0
+coef_si  = 20.0
+coef_se  = 20.0
+
+[[stage.scoring.component]]
+[stage.scoring.component.custom_alerts]
+[[stage.scoring.component.custom_alerts.endpoint]]
+name = "custom_alerts"
+weight = 1.0
+params.smarts = [
+  "[*;r8]", "[*;r9]", "[*;r10]",
+  "[CH2;X4][N;X3][CH2;X4]",
+  "c1ccc2c(c1)ccc(=O)o2"
+]

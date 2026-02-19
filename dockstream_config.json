@@ -1,0 +1,100 @@
+{
+  "docking": {
+    "header": {
+      "logging": {
+        "logfile": "results/dockstream.log"
+      }
+    },
+    "ligand_preparation": {
+      "embedding_pools": [
+        {
+          "pool_id": "RDkit",
+          "type": "RDkit",
+          "parameters": {
+            "parallelization": {
+              "number_cores": 4
+            }
+          },
+          "input": {
+            "standardize_smiles": false,
+            "type": "console"
+          },
+          "output": {
+            "conformer_path": "poses/conformers.sdf",
+            "format": "sdf"
+          }
+        }
+      ]
+    },
+    "docking_runs": [
+      {
+        "backend": "AutoDockVina",
+        "run_id": "PPARa",
+        "input_pools": [
+          "RDkit"
+        ],
+        "parameters": {
+          "binary_location": "/home/michael-kaiser/anaconda3/envs/DockStream/bin",
+          "parallelization": {
+            "number_cores": 4
+          },
+          "receptor_pdbqt_path": [
+            "targets/ppar_alpha.pdbqt"
+          ],
+          "number_poses": 1,
+          "search_space": {
+            "--center_x": 13.861,
+            "--center_y": -12.946,
+            "--center_z": -31.915,
+            "--size_x": 16.842,
+            "--size_y": 9.62,
+            "--size_z": 22.206
+          }
+        },
+        "output": {
+          "poses": {
+            "poses_path": "poses/docked_ppara.sdf"
+          },
+          "scores": {
+            "scores_path": "results/scores_ppara.csv",
+            "overwrite": true
+          }
+        }
+      },
+      {
+        "backend": "AutoDockVina",
+        "run_id": "PPARg",
+        "input_pools": [
+          "RDkit"
+        ],
+        "parameters": {
+          "binary_location": "/home/michael-kaiser/anaconda3/envs/DockStream/bin",
+          "parallelization": {
+            "number_cores": 4
+          },
+          "receptor_pdbqt_path": [
+            "targets/ppar_gamma.pdbqt"
+          ],
+          "number_poses": 1,
+          "search_space": {
+            "--center_x": 22.553,
+            "--center_y": -7.676,
+            "--center_z": 26.095,
+            "--size_x": 64.72,
+            "--size_y": 77.892,
+            "--size_z": 75.448
+          }
+        },
+        "output": {
+          "poses": {
+            "poses_path": "poses/docked_pparg.sdf"
+          },
+          "scores": {
+            "scores_path": "results/scores_pparg.csv",
+            "overwrite": true
+          }
+        }
+      }
+    ]
+  }
+}
