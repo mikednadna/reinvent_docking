@@ -128,14 +128,38 @@ conda deactivate
 
 # 7. УСТАНОВКА DOCKSTREAM
 echo -e "\n${BLUE}🐳 Установка DockStream...${NC}"
+
 if [ ! -d "$INSTALL_DIR/DockStream" ]; then
+    echo "   Клонирование репозитория DockStream..."
     git clone https://github.com/MolecularAI/DockStream.git
+    cd DockStream
+    
+    # Активируем окружение DockStream
     conda activate DockStream
-    pip install -r DockStream/requirements.txt
+    
+    echo "   Установка DockStream через setup.py..."
+    
+    # Вариант 1: Установка через setup.py (рекомендуется)
+    pip install -e .
+    
+    # Вариант 2: Если есть environment.yml, можно создать окружение из него
+    # Но у нас уже есть окружение, так что просто устанавливаем зависимости
+    
+    # Устанавливаем дополнительные зависимости, которые могут понадобиться
+    pip install pandas numpy rdkit-pypi
+    
+    cd $INSTALL_DIR
     conda deactivate
     echo "   ✅ DockStream установлен"
 else
     echo "   ⏭️ DockStream уже есть"
+    # Обновляем, если нужно
+    cd DockStream
+    git pull
+    conda activate DockStream
+    pip install -e .
+    cd $INSTALL_DIR
+    conda deactivate
 fi
 
 # 8. ЗАГРУЗКА PRIOR ФАЙЛА
