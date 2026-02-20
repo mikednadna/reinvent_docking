@@ -19,21 +19,22 @@ TARGET_1_NAME = "ppar_alpha"    # основная мишень (улучшае�
 TARGET_2_NAME = "ppar_gamma"    # мишень для селективности (ухудшаем) -- например: "ppar_gamma"
 
 # Названия для людей (для вывода и логов)
-TARGET_1_LABEL = "PPARα"    # Например: "PPARα"
-TARGET_2_LABEL = "PPARγ"    # Например: "PPARγ"
+TARGET_1_LABEL = "PPARα"    # Пишем человеческое название, для вывода на экран
+TARGET_2_LABEL = "PPARγ"    # Например: "PPARα"
 
 # Пути к файлам
-TARGET_1_PDB = "targets/ppar_alpha.pdb"     # Например: "targets/ppar_alpha.pdb"
-TARGET_2_PDB = "targets/ppar_gamma.pdb"     # Например: "targets/ppar_gamma.pdb"
+TARGET_1_PDB = "/mnt/tank/scratch/YOU_USERNAME/targets/ppar_alpha.pdb"     # Меняем название у файла pdb
+TARGET_2_PDB = "/mnt/tank/scratch/YOU_USERNAME/targets/ppar_gamma.pdb"     # и пишем ваш username от сервера
 
 # Пути к PDBQT файлам (после обработки Meeko)
-TARGET_1_PDBQT = "targets/ppar_alpha.pdbqt"     # Например: "targets/ppar_alpha.pdbqt"
-TARGET_2_PDBQT = "targets/ppar_gamma.pdbqt"     # Например: "targets/ppar_gamma.pdbqt"
+TARGET_1_PDBQT = "/mnt/tank/scratch/YOU_USERNAME/targets/ppar_alpha.pdbqt"     # Меняем название у файла pdbqt
+TARGET_2_PDBQT = "/mnt/tank/scratch/YOU_USERNAME/targets/ppar_gamma.pdbqt"     # и пишем ваш username от сервера
 
 # ID для docking runs в DockStream
 TARGET_1_RUN_ID = "PPARa"   # Например: "PPARa"
 TARGET_2_RUN_ID = "PPARg"   # Например: "PPARg"
 
+# НЕ ЗАБУДЬТЕ ПОМЕНЯТЬ ЗДЕСЬ КООРДИНАТЫ НА СВОИ
 # Координаты боксов для докинга (настраиваются ПОД КОНКРЕТНЫЕ мишени)
 TARGET_1_BOX = {
     "center_x": 13.861, "center_y": -12.946, "center_z": -31.915,
@@ -69,9 +70,10 @@ CONDA_BASE = Path(subprocess.run(
 def find_dockstream():
     """Автопоиск DockStream в типичных местах"""
     candidates = [
-        BASE_DIR / "DockStream",  # внутри проекта
-        BASE_DIR.parent / "DockStream",  # на уровень выше
-        Path.home() / "DockStream",  # ~/DockStream
+        BASE_DIR / "DockStream",
+        BASE_DIR.parent / "DockStream",
+        Path.home() / "DockStream",
+        Path("/mnt/tank/scratch/wolffe104/DockStream"),
     ]
     for p in candidates:
         if (p / "docker.py").exists():
@@ -91,7 +93,7 @@ CONFIG = {
     "conda_dockstream": "DockStream",
     "work_dir": str(BASE_DIR),
     "dockstream_path": find_dockstream(),   # ← автопоиск
-    "prior_file": str(BASE_DIR / "reinvent.prior"),
+    "prior_file": str(Path("/mnt/tank/scratch/wolffe104") / "reinvent.prior"),
     "targets": {
         TARGET_1_NAME: str(BASE_DIR / TARGET_1_PDB),
         TARGET_2_NAME: str(BASE_DIR / TARGET_2_PDB),
@@ -178,7 +180,7 @@ def prepare_receptors():
         print(f"✅ {target_name}.pdbqt создан")
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# ПРОВЕРИТЬ ЭТУ ЧАСТЬ ЕЩЕ РАЗ, Т.К. ПОПРОСИЛ ИИ ДОПЕРЕПИСАТЬ
+
 def create_dockstream_config():
     """Создание dockstream_config.json"""
 
