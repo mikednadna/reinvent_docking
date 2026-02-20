@@ -126,41 +126,45 @@ cd $INSTALL_DIR
 echo "   Проверка: $(which reinvent || echo 'не найден')"
 conda deactivate
 
-# 7. УСТАНОВКА DOCKSTREAM
+# 7. УСТАНОВКА DOCKSTREAM (ПОЛНОСТЬЮ ИСПРАВЛЕНО)
 echo -e "\n${BLUE}🐳 Установка DockStream...${NC}"
 
-if [ ! -d "$INSTALL_DIR/DockStream" ]; then
-    echo "   Клонирование репозитория DockStream..."
-    git clone https://github.com/MolecularAI/DockStream.git
-    cd DockStream
-    
-    # Активируем окружение DockStream
-    conda activate DockStream
-    
-    echo "   Установка DockStream через setup.py..."
-    
-    # Вариант 1: Установка через setup.py (рекомендуется)
-    pip install -e .
-    
-    # Вариант 2: Если есть environment.yml, можно создать окружение из него
-    # Но у нас уже есть окружение, так что просто устанавливаем зависимости
-    
-    # Устанавливаем дополнительные зависимости, которые могут понадобиться
-    pip install pandas numpy rdkit-pypi
-    
-    cd $INSTALL_DIR
-    conda deactivate
-    echo "   ✅ DockStream установлен"
-else
-    echo "   ⏭️ DockStream уже есть"
-    # Обновляем, если нужно
-    cd DockStream
-    git pull
-    conda activate DockStream
-    pip install -e .
-    cd $INSTALL_DIR
-    conda deactivate
+cd $INSTALL_DIR
+
+# Удаляем старую папку, если она есть
+if [ -d "DockStream" ]; then
+    echo "   🗑️ Удаление старой версии DockStream..."
+    rm -rf DockStream
 fi
+
+# Клонируем свежий репозиторий
+echo "   Клонирование репозитория DockStream..."
+git clone https://github.com/MolecularAI/DockStream.git
+cd DockStream
+
+# Активируем окружение DockStream
+conda activate DockStream
+
+# Устанавливаем как Python-пакет
+echo "   Установка DockStream через pip install -e ."
+pip install -e .
+
+# Возвращаемся назад
+cd $INSTALL_DIR
+
+# Проверяем, что установка прошла успешно
+echo "   Проверка импорта DockStream..."
+conda run -n DockStream python -c "
+try:
+    import dockstream
+    print('   ✅ DockStream успешно импортирован')
+except ImportError as e:
+    print('   ❌ Ошибка импорта:', e)
+    exit(1)
+"
+
+conda deactivate
+echo "   ✅ DockStream готов к работе"
 
 # 8. ЗАГРУЗКА PRIOR ФАЙЛА
 echo -e "\n${BLUE}📥 Загрузка prior-модели...${NC}"
