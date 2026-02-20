@@ -126,7 +126,7 @@ cd $INSTALL_DIR
 echo "   Проверка: $(which reinvent || echo 'не найден')"
 conda deactivate
 
-# 7. УСТАНОВКА DOCKSTREAM (ПОЛНОСТЬЮ ИСПРАВЛЕНО)
+# 7. УСТАНОВКА DOCKSTREAM
 echo -e "\n${BLUE}🐳 Установка DockStream...${NC}"
 
 cd $INSTALL_DIR
