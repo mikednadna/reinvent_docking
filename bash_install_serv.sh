@@ -2,8 +2,7 @@
 #SBATCH -p aichem
 #SBATCH --cpus-per-task=16
 #SBATCH --time=48:00:00
-#SBATCH --grep=gpu:1
-#SBATCH -p aihub
+#SBATCH --gres=gpu:1
 
 set -e  # остановка при ошибке
 
@@ -12,8 +11,8 @@ BLUE='\033[0;34m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-# Устанавливаем путь установки
-export INSTALL_DIR="/mnt/tank/scratch/wolffe104"    #ТУТ СВОЕ ИМЯ НА КЛАСТЕРЕ НУЖНО ВВЕСТИ
+# Устанавливаем путь установки (ТУТ СВОЕ ИМЯ НА КЛАСТЕРЕ)
+export INSTALL_DIR="/mnt/tank/scratch/username"    # ТУТ МЕНЯЕМ ИМЯ НА СВОЕ
 cd $INSTALL_DIR
 
 echo -e "${BLUE}📁 Установка в: $INSTALL_DIR${NC}"
@@ -23,14 +22,54 @@ echo -e "\n${BLUE}📁 Создание папок...${NC}"
 mkdir -p targets results poses priors
 echo "   ✅ папки готовы"
 
-# 2. ПРОВЕРКА МОДУЛЕЙ (на серверах часто используется module load вместо conda)
+# 2. ПРОВЕРКА И УСТАНОВКА CONDA (НОВЫЙ ПУНКТ!)
 echo -e "\n${BLUE}🔍 Проверка conda...${NC}"
-if ! command -v conda &> /dev/null; then
-    echo -e "${RED}❌ Conda не найдена. Проверьте module load conda${NC}"
-    echo "   Попробуйте: module load conda && source /usr/local/conda/etc/profile.d/conda.sh"
-    exit 1
+
+# Функция для установки Miniconda
+install_miniconda() {
+    echo "   Установка Miniconda в $INSTALL_DIR/miniconda3..."
+    
+    # Скачиваем Miniconda
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+    
+    # Устанавливаем
+    bash miniconda.sh -b -p $INSTALL_DIR/miniconda3
+    rm miniconda.sh
+    
+    # Инициализируем conda
+    source $INSTALL_DIR/miniconda3/etc/profile.d/conda.sh
+    $INSTALL_DIR/miniconda3/bin/conda init bash
+    
+    # Добавляем в PATH для текущей сессии
+    export PATH="$INSTALL_DIR/miniconda3/bin:$PATH"
+    
+    echo "   ✅ Miniconda установлена"
+}
+
+# Проверяем, доступна ли conda как модуль
+if command -v conda &> /dev/null; then
+    echo "   ✅ Conda уже доступна: $(which conda)"
+    CONDA_BASE=$(conda info --base)
+else
+    echo -e "${BLUE}   ⚠️ Conda не найдена в системе${NC}"
+    
+    # Пробуем загрузить модуль conda (названия могут отличаться)
+    if module load anaconda3 2>/dev/null || module load miniconda3 2>/dev/null || module load python/conda 2>/dev/null; then
+        echo "   ✅ Conda модуль загружен"
+        source $CONDA_BASE/etc/profile.d/conda.sh 2>/dev/null || true
+    else
+        echo "   ⚠️ Модуль conda не найден, устанавливаем свою копию"
+        install_miniconda
+    fi
+    
+    # Проверяем еще раз
+    if ! command -v conda &> /dev/null; then
+        echo -e "${RED}   ❌ Не удалось установить conda${NC}"
+        exit 1
+    fi
+    CONDA_BASE=$(conda info --base)
 fi
-CONDA_BASE=$(conda info --base)
+
 echo "   ✅ Conda: $CONDA_BASE"
 
 # 3. УДАЛЕНИЕ СТАРЫХ ОКРУЖЕНИЙ
@@ -77,13 +116,9 @@ else
     git pull
 fi
 
-# На сервере обычно CPU (если нет GPU, можно оставить cpu)
-echo "   Установка зависимостей..."
-python install.py gpu
-
-# Если на сервере есть NVIDIA GPU, можно использовать:
-# python install.py cu121  # для CUDA 12.1
-# python install.py cu126  # для CUDA 12.6
+# На сервере с GPU (по #SBATCH --gres=gpu:1)
+echo "   Установка зависимостей с поддержкой GPU..."
+python install.py cu121  # или cu126, смотря какая версия CUDA на кластере
 
 pip install --no-deps .
 cd $INSTALL_DIR
@@ -111,7 +146,6 @@ conda activate reinvent4
 if [ ! -f "priors/reinvent.prior" ] && [ ! -f "reinvent.prior" ]; then
     echo "   Скачивание с Zenodo..."
     
-    # Проверяем наличие wget, если нет - используем curl
     if command -v wget &> /dev/null; then
         wget -q --show-progress https://zenodo.org/api/records/15641297/files-archive -O priors.zip
     elif command -v curl &> /dev/null; then
@@ -122,7 +156,6 @@ if [ ! -f "priors/reinvent.prior" ] && [ ! -f "reinvent.prior" ]; then
     fi
     
     if [ -f "priors.zip" ] && [ -s "priors.zip" ]; then
-        # Проверяем наличие unzip
         if command -v unzip &> /dev/null; then
             unzip -o priors.zip -d priors/
             rm priors.zip
