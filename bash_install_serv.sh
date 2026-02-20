@@ -1,4 +1,10 @@
 #!/bin/bash
+#SBATCH -p aichem
+#SBATCH --cpus-per-task=16
+#SBATCH --time=48:00:00
+#SBATCH --grep=gpu:1
+#SBATCH -p aihub
+
 set -e  # остановка при ошибке
 
 # Цвета
