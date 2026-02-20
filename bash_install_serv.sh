@@ -13,7 +13,7 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 # Устанавливаем путь установки
-export INSTALL_DIR="/mnt/tank/scratch/wolffe104"
+export INSTALL_DIR="/mnt/tank/scratch/wolffe104"    #ТУТ СВОЕ ИМЯ НА КЛАСТЕРЕ НУЖНО ВВЕСТИ
 cd $INSTALL_DIR
 
 echo -e "${BLUE}📁 Установка в: $INSTALL_DIR${NC}"
@@ -79,7 +79,7 @@ fi
 
 # На сервере обычно CPU (если нет GPU, можно оставить cpu)
 echo "   Установка зависимостей..."
-python install.py cpu
+python install.py gpu
 
 # Если на сервере есть NVIDIA GPU, можно использовать:
 # python install.py cu121  # для CUDA 12.1
